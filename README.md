@@ -6,6 +6,7 @@ security-aware group relative policy optimization algorithm for tuning the
 strategy-generating model.
 
 This repository accompanies the paper:
+https://ieeexplore.ieee.org/document/11299517
 
 > X. Cao, Y. Lin, G. Nan, et al., "Advancing LLM-Based Security Automation With
 > Customized Group Relative Policy Optimization for Zero-Touch Networks,"
