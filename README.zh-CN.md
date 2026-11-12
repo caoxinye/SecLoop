@@ -4,7 +4,7 @@
 **SA-GRPO**——一种安全感知的组相对策略优化算法，用于调优生成策略的模型。
 
 本仓库对应论文：
-
+https://ieeexplore.ieee.org/document/11299517
 > X. Cao, Y. Lin, G. Nan, et al., "Advancing LLM-Based Security Automation With
 > Customized Group Relative Policy Optimization for Zero-Touch Networks,"
 > *IEEE Journal on Selected Areas in Communications*, vol. 44, 2026, pp. 2669–2686.
@@ -103,7 +103,7 @@ python agent/main.py --ids-summary-file /path/to/fast.log   # 4. 跑一轮闭环
 
 ## 引用
 
-如果参考了我们的代码，请引用以下文章：
+如果参考了我们的代码，请考虑引用以下文章：
 
 ```bibtex
 @article{cao2026secloop,
@@ -116,7 +116,7 @@ python agent/main.py --ids-summary-file /path/to/fast.log   # 4. 跑一轮闭环
   year    = {2026},
   doi     = {10.1109/JSAC.2025.3643844}
 }
-、、、
+```
 
 ## 许可证
 
