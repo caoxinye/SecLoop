@@ -1,0 +1,20 @@
+{
+  "_comment": "SecLoop attack-command registry. One entry per attack mode; only 'sqli' ships. The command is rendered by battlefield/soc/red_team_controller.py, which runs it on the red VM as: cd <workdir> && timeout --signal=TERM --kill-after=15 <SOC_ATTACK_TIMEOUT_S> <command>. Contract: battlefield/attacks/sqli_lab.py prints exactly one '[RESULT] {json}' line (docs/INTERFACES.md section 2.1). Keys starting with '_' are comments and are ignored by the loader.",
+  "sqli": {
+    "description": "Time-based blind SQL injection against the SecLoop lab target (5 weighted stages).",
+    "script": "sqli_lab.py",
+    "workdir": "~/attacks",
+    "command": "python3 sqli_lab.py --target-ip {target_ip} --delay {delay_s} --timeout {request_timeout_s}",
+    "default_target_ip": "192.168.57.200",
+    "delay_s": 1,
+    "request_timeout_s": 8,
+    "result_prefix": "[RESULT] ",
+    "stages": [
+      {"name": "db_name_length", "weight": 0.1},
+      {"name": "db_name", "weight": 0.1},
+      {"name": "table_name", "weight": 0.2},
+      {"name": "column_name", "weight": 0.2},
+      {"name": "dump_row", "weight": 0.4}
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# SA-GRPO training dependencies (install with `pip install -r requirements.txt`).
+# TRL is pinned by upstream commit and is NOT vendored into this repository.
+# `trl==0.18.0` is the equivalent released version.
+
+accelerate==1.4.0
+datasets>=3.2.0
+deepspeed==0.16.7
+peft>=0.14.0
+requests>=2.31.0
+torch==2.6.0
+transformers @ git+https://github.com/huggingface/transformers.git@acdbe627e323dbc822f21499fead789b439cf45b
+trl @ git+https://github.com/huggingface/trl.git@1bca49515ecd5b85d16e68c42c76670e252e19f1
+wandb>=0.19.1
+
+# Optional, and deliberately not installed by default because both need a CUDA
+# toolchain that matches the driver on the training node:
+#
+#   flash-attn>=2.7.0   # required by `attn_implementation: flash_attention_2`
+#   vllm>=0.8.3         # required by `use_vllm: true` (separate generation server)
+#
+# Fall back to `attn_implementation: sdpa` in the recipe when FlashAttention-2 is
+# unavailable.

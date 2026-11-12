@@ -1,0 +1,72 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the accompanying paper."
+title: "SecLoop: LLM-Based Security Automation with SA-GRPO for Zero-Touch Networks"
+abstract: >-
+  SecLoop is a framework for fully automated security strategy generation,
+  orchestration, response and feedback, together with SA-GRPO, a security-aware
+  group relative policy optimization algorithm for tuning the
+  strategy-generating model. The repository ships an isolated two-VM reference
+  scenario that exercises the complete feedback loop.
+type: software
+license: Apache-2.0
+version: "1.0.0"
+date-released: "2026-10-13"
+authors:
+  - family-names: "Cao"
+    given-names: "Xinye"
+  - family-names: "Lin"
+    given-names: "Yihan"
+  - family-names: "Nan"
+    given-names: "Guoshun"
+  - family-names: "Zhou"
+    given-names: "Qinchuan"
+  - family-names: "Luo"
+    given-names: "Yuhang"
+  - family-names: "Gao"
+    given-names: "Yurui"
+  - family-names: "Zhang"
+    given-names: "Zeliang"
+  - family-names: "Lu"
+    given-names: "Haolang"
+  - family-names: "Cui"
+    given-names: "Qimei"
+  - family-names: "Hou"
+    given-names: "Yanzhao"
+  - family-names: "Tao"
+    given-names: "Xiaofeng"
+  - family-names: "Quek"
+    given-names: "Tony Q. S."
+preferred-citation:
+  type: article
+  title: "Advancing LLM-Based Security Automation With Customized Group Relative Policy Optimization for Zero-Touch Networks"
+  authors:
+    - family-names: "Cao"
+      given-names: "Xinye"
+    - family-names: "Lin"
+      given-names: "Yihan"
+    - family-names: "Nan"
+      given-names: "Guoshun"
+    - family-names: "Zhou"
+      given-names: "Qinchuan"
+    - family-names: "Luo"
+      given-names: "Yuhang"
+    - family-names: "Gao"
+      given-names: "Yurui"
+    - family-names: "Zhang"
+      given-names: "Zeliang"
+    - family-names: "Lu"
+      given-names: "Haolang"
+    - family-names: "Cui"
+      given-names: "Qimei"
+    - family-names: "Hou"
+      given-names: "Yanzhao"
+    - family-names: "Tao"
+      given-names: "Xiaofeng"
+    - family-names: "Quek"
+      given-names: "Tony Q. S."
+  journal: "IEEE Journal on Selected Areas in Communications"
+  volume: 44
+  start: 2669
+  end: 2686
+  year: 2026
+  doi: "10.1109/JSAC.2025.3643844"

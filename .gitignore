@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: Apache-2.0
+# SecLoop — ignore rules
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---------- Secrets (never commit) ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+credentials.json
+
+# ---------- Vagrant / VMware runtime artifacts ----------
+.vagrant/
+vagrant/.vagrant/
+*.vmx
+*.vmsd
+*.nvram
+*.vmem
+*.vmxf
+*.vmdk
+*.lck
+*.ova
+vagrant/env_*/
+vagrant/snapshots/
+
+# ---------- Suricata / lab runtime output ----------
+*.fast.log
+eve.json
+eve.json.*
+suricata.log
+stats.log
+fast.log
+
+# ---------- Model & dataset artifacts (not distributed) ----------
+*.safetensors
+*.ckpt
+*.gguf
+*.pt
+*.pth
+checkpoint-*/
+wandb/
+data/
+
+# ---------- Editors / OS ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# ---------- Local scratch (not part of the release) ----------
+temp/

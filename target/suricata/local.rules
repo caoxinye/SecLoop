@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# SecLoop lab target -- Suricata rules for the deliberately vulnerable
+# search.php endpoint (docs/INTERFACES.md sections 4.2, 4.5 and 11).
+#
+# Design constraints, all deliberate:
+#   * `alert http any any -> any any` with `flow:to_server,established` and NO
+#     $HOME_NET / $EXTERNAL_NET / $HTTP_SERVERS variable. The lab traffic runs
+#     from 192.168.57.199 (attacker) to 192.168.57.200 (target); with the usual
+#     `-> $EXTERNAL_NET` spelling a source inside HOME_NET is never "external",
+#     so such a rule would silently never match. To narrow this file to one
+#     host instead, replace the address pair with
+#     `any any -> 192.168.57.200 any`.
+#   * Every rule inspects `http_uri`, i.e. only the request line, and only in the
+#     to-server direction. Nothing here inspects (or needs) response traffic.
+#   * Payloads are percent-encoded by the probe, so encoded-space tolerant pairs
+#     (`distance`/`within`) are used where a raw-space form would not match.
+#   * `msg` always starts with "SQL Injection Attempt - " so the Eq.2 alert
+#     summarizer (ids/combine_ids_log.py) collapses the ten variants into a
+#     single readable episode while still reporting each variant.
+#   * These are DETECTION rules for our own lab target. They do not write
+#     alerts: only Suricata observing real HTTP traffic produces fast.log.
+#
+# Validate and load:
+#   sudo install -m 0644 local.rules /etc/suricata/rules/local.rules
+#   sudo suricata -T -c /etc/suricata/suricata.yaml -v
+# See target/suricata/README.md for the full procedure and for ET Open.
+#
+# sid range 1000001+ is the local/policy range; nothing here collides with a
+# public ruleset sid.
+
+# 1000001 -- SLEEP() in the URI. This is the signature the reference probe
+# (battlefield/attacks/sqli_lab.py) trips on every single request: it uses
+# time-blind injection, so SLEEP() is the injection marker itself.
+alert http any any -> any any (msg:"SQL Injection Attempt - time-based blind via SLEEP()"; flow:to_server,established; content:"sleep("; nocase; http_uri; reference:url,https://owasp.org/www-community/attacks/SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000001; rev:1;)
+
+# 1000002 -- BENCHMARK() in the URI: the MySQL heavy-query alternative to SLEEP().
+alert http any any -> any any (msg:"SQL Injection Attempt - time-based blind via BENCHMARK()"; flow:to_server,established; content:"benchmark("; nocase; http_uri; reference:url,https://owasp.org/www-community/attacks/SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000002; rev:1;)
+
+# 1000003 -- information_schema enumeration. Stages 3 and 4 of the probe (table
+# and column discovery) cannot be expressed without it.
+alert http any any -> any any (msg:"SQL Injection Attempt - metadata enumeration via information_schema"; flow:to_server,established; content:"information_schema"; nocase; http_uri; reference:url,https://owasp.org/www-community/attacks/SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000003; rev:1;)
+
+# 1000004 -- UNION SELECT, tolerant of encoded or comment-separated whitespace
+# (`union%20select`, `union/**/select`, `union+select`).
+alert http any any -> any any (msg:"SQL Injection Attempt - UNION SELECT"; flow:to_server,established; content:"union"; nocase; http_uri; content:"select"; nocase; distance:0; within:16; reference:url,https://owasp.org/www-community/attacks/SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000004; rev:1;)
+
+# 1000005 -- the "AND IF( ... )" conditional predicate that every blind payload
+# needs. Matching `and` then `if(` within 8 bytes covers both the raw form
+# (`and if(`) and the percent-encoded form (`and%20if(`) that the probe emits.
+alert http any any -> any any (msg:"SQL Injection Attempt - conditional AND IF() blind predicate"; flow:to_server,established; content:"and"; nocase; http_uri; content:"if("; nocase; distance:0; within:8; reference:url,https://owasp.org/www-community/attacks/Blind_SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000005; rev:1;)
+
+# 1000006 -- ASCII()/SUBSTR() character-by-character extraction: the classic
+# fingerprint of scripted blind enumeration (stage extraction of the probe).
+alert http any any -> any any (msg:"SQL Injection Attempt - blind character extraction via ASCII()/SUBSTR()"; flow:to_server,established; content:"ascii("; nocase; http_uri; content:"substr("; nocase; distance:0; within:32; reference:url,https://owasp.org/www-community/attacks/Blind_SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000006; rev:1;)
+
+# 1000007 -- string-literal break-out followed by a SQL comment terminator:
+# `' ... --`. The comment may sit far downstream of the quote (the probe's
+# column-discovery payload is ~220 bytes), hence the generous `within`.
+alert http any any -> any any (msg:"SQL Injection Attempt - literal break-out followed by SQL comment terminator"; flow:to_server,established; content:"'"; http_uri; content:"--"; http_uri; distance:0; within:512; reference:url,https://owasp.org/www-community/attacks/SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000007; rev:1;)
+
+# 1000008 -- quoted tautology predicate, i.e. the "' or '1'='1" family
+# (also matches the `"or '1'='1` double-quote spelling).
+alert http any any -> any any (msg:"SQL Injection Attempt - quoted tautology predicate"; flow:to_server,established; content:"or '1'='1"; nocase; http_uri; reference:url,https://owasp.org/www-community/attacks/SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000008; rev:1;)
+
+# 1000009 -- numeric tautology predicate ("or 1=1"), the boolean form of 1000008.
+alert http any any -> any any (msg:"SQL Injection Attempt - numeric tautology predicate"; flow:to_server,established; content:"or 1=1"; nocase; http_uri; reference:url,https://owasp.org/www-community/attacks/SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000009; rev:1;)
+
+# 1000010 -- EXTRACTVALUE() error-based extraction, the "read data through an
+# error message" sibling of the time-blind technique. The probe does not use it;
+# it is here so the target is not only detectable for its own one payload style.
+alert http any any -> any any (msg:"SQL Injection Attempt - error-based extraction via EXTRACTVALUE()"; flow:to_server,established; content:"extractvalue("; nocase; http_uri; reference:url,https://owasp.org/www-community/attacks/SQL_Injection; classtype:web-application-attack; metadata:attack_target Web_Server, signature_severity Major, tag SQL_Injection, tag SecLoop_Lab; sid:1000010; rev:1;)

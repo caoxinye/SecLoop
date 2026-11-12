@@ -1,0 +1,60 @@
+SecLoop
+Copyright 2026 The SecLoop Authors
+
+This product includes software developed at other projects, listed below with
+their licenses. Each component remains under its own license; the Apache-2.0
+license of this repository applies to the original SecLoop code only.
+
+--------------------------------------------------------------------------------
+1. TRL (Transformer Reinforcement Learning) — Apache License 2.0
+   Upstream: https://github.com/huggingface/trl
+   Pinned revision used by the training subsystem:
+   1bca49515ecd5b85d16e68c42c76670e252e19f1
+   Copyright 2020-2025 The HuggingFace Team.
+   NOTE: TRL is NOT vendored into this repository. It is declared as a
+   dependency in training/requirements.txt. If you redistribute this repository
+   together with a copy of TRL, you must include TRL's license text and retain
+   its copyright notices (Apache-2.0, sections 4(a), 4(b), 4(d)).
+
+--------------------------------------------------------------------------------
+2. Open-R1 — Apache License 2.0
+   Upstream: https://github.com/huggingface/open-r1
+   The training subsystem (training/src/open_r1/**) is derived from
+   Open-R1 at commit 50590a4, with SecLoop-specific additions.
+   Copyright The HuggingFace Team.
+   License text: training/LICENSE
+
+--------------------------------------------------------------------------------
+3. TRL GRPO configuration semantics
+   The SA-GRPO algorithm is realised through five configuration values of TRL's
+   GRPOConfig (num_generations, scale_rewards, beta, epsilon/epsilon_high, loss_type)
+   plus this repository's reward functions. No GRPO trainer code is modified.
+
+--------------------------------------------------------------------------------
+4. Suricata — GNU General Public License v2
+   Upstream: https://suricata.io/
+   Suricata is installed inside the lab target VM by
+   vagrant/provision/target_setup.sh. It is NOT redistributed here.
+   The rule file target/suricata/local.rules is original to this repository
+   (Apache-2.0). Optionally enabled third-party rulesets (e.g. ET Open,
+   https://rules.emergingthreats.net/) carry their own license terms and are
+   fetched by the user, not redistributed here.
+
+--------------------------------------------------------------------------------
+5. Vagrant base boxes — third-party, fetched by the user
+   - kalilinux/rolling      (Kali Linux; see https://www.kali.org/)
+   - bento/ubuntu-18.04     (Bento; see https://github.com/chef/bento)
+   These images are downloaded by Vagrant at `vagrant up` time and are not
+   redistributed in this repository.
+
+--------------------------------------------------------------------------------
+6. VMware Workstation Pro
+   Proprietary software, installed separately by the user. As of the 17.6
+   licensing model it is free of charge for commercial, educational and
+   personal use and requires no license key. Not redistributed here.
+
+--------------------------------------------------------------------------------
+7. Python dependencies
+   Declared in requirements/battlefield.txt, agent/requirements.txt and
+   training/requirements.txt. Each dependency keeps its own license; consult
+   the respective project for terms.

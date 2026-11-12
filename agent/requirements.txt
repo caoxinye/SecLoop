@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+# SecLoop agent — minimal, pinned runtime dependencies.
+#
+# The LLM client in agent/llm/llm_interface.py speaks the OpenAI-compatible *serving*
+# protocol over plain HTTP (this is how a locally served model is addressed by vLLM,
+# SGLang, Ollama or TGI), so no vendor SDK is required or shipped.  The same module is
+# imported by training/src/open_r1/rewards.py for the cascade penalty judge, which is why
+# the dependency set stays this small.
+requests==2.34.2

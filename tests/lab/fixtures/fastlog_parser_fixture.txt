@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+#
+# HAND-AUTHORED PARSER FIXTURE -- NOT CAPTURED EVIDENCE.
+#
+# Every line below was written by hand so that tests/lab/test_ids_summarizer.py
+# can exercise ids/combine_ids_log.py. These are NOT real Suricata alerts, this
+# is NOT an alert log, and no component of the pipeline may read it. Nothing
+# here may ever be shown as a detection result: the shipped pipeline reads only
+# the fast.log that Suricata itself writes from observed traffic (see
+# target/suricata/README.md). Fabricating alert logs is explicitly out of scope
+# for this project, which is why this file is a .txt under tests/lab/fixtures/,
+# starts with this banner, and is never installed next to Suricata.
+#
+# What *is* real here is the line shape: every alert line mirrors genuine
+# Suricata 4.x fast.log output (`MM/DD/YYYY-HH:MM:SS.ffffff  [**] [gid:sid:rev]
+# msg [**] [Classification: ...] [Priority: n] {PROTO} src:sport -> dst:dport`),
+# as observed in real captures during development. Addresses are taken from the
+# published lab /24 in docs/INTERFACES.md section 1; every sid, message and
+# classification below is ours or a generic placeholder, never third-party data.
+#
+# Layout: 13 alert lines, then one deliberately malformed line. The `#` banner
+# above and the malformed line together exercise the parser's skip path.
+#
+03/26/2025-22:03:25.977231  [**] [1:1000001:1] SQL Injection Attempt - time-based blind via SLEEP() [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 192.168.57.199:54228 -> 192.168.57.200:80
+03/26/2025-22:03:26.101442  [**] [1:1000001:1] SQL Injection Attempt - time-based blind via SLEEP() [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 192.168.57.199:54228 -> 192.168.57.200:80
+03/26/2025-22:03:27.500001  [**] [1:1000001:1] SQL Injection Attempt - time-based blind via SLEEP() [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 192.168.57.199:54230 -> 192.168.57.200:80
+03/26/2025-22:03:26.500300  [**] [1:100011:1] XSS Detected [**] [Classification: (null)] [Priority: 3] {TCP} 192.168.57.199:8086 -> 192.168.57.200:8080
+03/26/2025-22:03:26.700400  [**] [1:100020:1] Portscan Detected [**] [Classification: Attempted Information Leak] [Priority: 2] {UDP} 192.168.57.198:40001 -> 192.168.57.200:22
+03/26/2025-22:03:27.900500  [**] [1:100020:1] Portscan Detected [**] [Classification: Attempted Information Leak] [Priority: 2] {UDP} 192.168.57.198:40002 -> 192.168.57.200:22
+03/26/2025-22:03:28.000100  [**] [1:1000005:1] SQL Injection Attempt - conditional AND IF() blind predicate [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 192.168.57.199:54230 -> 192.168.57.200:80
+03/26/2025-22:03:29.000200  [**] [1:1000004:1] SQL Injection Attempt - UNION SELECT - encoded variant [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 192.168.57.199:54230 -> 192.168.57.200:80
+03/26/2025-22:03:30.000600  [**] [1:1000009:1] SQL Injection Attempt - " or 1=1 [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 192.168.57.197:44444 -> 192.168.57.200:80
+03/26/2025-22:20:00.000000  [**] [1:1000003:1] SQL Injection Attempt - metadata enumeration via information_schema [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 192.168.57.199:55000 -> 192.168.57.200:80
+03/26/2025-22:20:05.000000  [**] [1:1000003:1] SQL Injection Attempt - metadata enumeration via information_schema [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 192.168.57.199:55002 -> 192.168.57.200:80
+03/26/2025-22:21:30.000000  [**] [1:1000003:1] SQL Injection Attempt - metadata enumeration via information_schema [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 192.168.57.199:55004 -> 192.168.57.200:80
+04/04/2025-07:11:32  [**] [1:100011:1] XSS Detected [**] [Classification: (null)] [Priority: 3] {TCP} 192.168.57.199:8090 -> 192.168.57.200:8080
+
+[**] [1:999999:1] this line has no timestamp and must be skipped [**] [Classification: (null)] [Priority: 3] {TCP} 192.168.57.199:1 -> 192.168.57.200:2

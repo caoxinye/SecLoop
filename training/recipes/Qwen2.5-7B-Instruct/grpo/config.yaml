@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: Apache-2.0
+# SA-GRPO recipe - paper Table IV + INTERFACES.md §10.1.
+#
+# The five algorithm values below are the whole difference between SA-GRPO and
+# stock GRPO (upstream TRL defaults would give you beta=0.04, symmetric clipping
+# and advantage scaling by the group standard deviation, i.e. plain GRPO).  They
+# are written out explicitly on purpose: a reader must be able to see the paper's
+# objective in this file alone.
+
+# --- Model arguments -----------------------------------------------------------------
+model_name_or_path: Qwen/Qwen2.5-7B-Instruct
+model_revision: main
+torch_dtype: bfloat16
+attn_implementation: flash_attention_2
+
+# --- Data arguments ------------------------------------------------------------------
+# `local_security_dataset` is the sentinel that selects the repository-local IDS
+# corpus; point `dataset_dir` (or SECLOOP_DATASET_DIR) at training/dataset.
+dataset_name: local_security_dataset
+dataset_dir: null
+system_prompt: ""
+
+# --- SA-GRPO algorithm values (paper Section III-A, INTERFACES.md §10.1) --------------
+num_generations: 7     # group size G (Table IV)
+scale_rewards: false   # Eq. 17: A_i = r_i - mean(r), no division by the group std
+beta: 0.0              # KL divergence term excluded
+epsilon: 0.2           # lower clip bound (epsilon_low)
+epsilon_high: 0.28     # Clip-Higher upper bound (epsilon_high > epsilon_low)
+loss_type: dr_grpo     # Eq. 14 divides by G only - there is no 1/|o_i| per-sequence length
+                       # normalisation. Of TRL's three values, only "dr_grpo" normalises by a
+                       # constant ("bnpo" uses the batch token count, "grpo" divides by each
+                       # sequence length). Table IV omits this row; Eq. 14 and the run this
+                       # recipe reproduces both require it.
+
+# --- Reward --------------------------------------------------------------------------
+reward_funcs:
+  - sa_cascade         # four-stage cascade: R_format + R_exec + R_eva - P
+reward_weights:
+  - 1.0
+
+# --- Optimisation (paper Table IV) ---------------------------------------------------
+# Table IV fixes exactly these four; the values are the paper's.
+learning_rate: 3.0e-06
+num_train_epochs: 1
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 1
+
+# From the paper's setup section, not Table IV: bf16 mixed precision.
+bf16: true
+
+# This repository's engineering choices -- **not** from the paper. A single-epoch run
+# with no warmup spikes; 10% warmup plus cosine decay is the conventional remedy.
+# Gradient checkpointing keeps a 7B model with 7 generations per prompt inside the
+# memory budget, at the cost of compute.
+warmup_ratio: 0.1
+lr_scheduler_type: cosine
+gradient_checkpointing: true
+gradient_checkpointing_kwargs:
+  use_reentrant: false
+
+# The effective train batch is per_device_train_batch_size x num_processes x
+# gradient_accumulation_steps and TRL requires it to be divisible by
+# num_generations: 4 x 7 x 1 = 28, which is divisible by G = 7.  That is why the
+# launcher runs 7 training ranks on the 8-GPU node and leaves one GPU for the
+# generation server when `use_vllm` is enabled (see train.sh and README.md).
+per_device_eval_batch_size: 4
+
+# --- Sequence lengths ----------------------------------------------------------------
+max_prompt_length: 512
+max_completion_length: 1024
+max_steps: -1
+
+# --- Generation ----------------------------------------------------------------------
+# `use_vllm: true` against this TRL pin requires a separate server started with
+# `trl vllm-serve --model Qwen/Qwen2.5-7B-Instruct` on the spare GPU.  It is left
+# off so the recipe runs out of the box; see README.md for the server recipe.
+use_vllm: false
+vllm_server_host: 127.0.0.1
+vllm_server_port: 8000
+
+# --- Logging and checkpointing --------------------------------------------------------
+do_eval: false
+save_strategy: steps
+save_steps: 50
+save_total_limit: 2
+logging_first_step: true
+logging_steps: 1
+logging_strategy: steps
+log_completions: true
+log_level: info
+output_dir: outputs/Qwen2.5-7B-SA-GRPO
+overwrite_output_dir: true
+report_to:
+  - wandb
+push_to_hub: false
+hub_model_id: Qwen2.5-7B-SA-GRPO
+seed: 42

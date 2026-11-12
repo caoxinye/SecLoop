@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+# This repository is LF everywhere, and tests/check_repo_contract.py enforces that on the
+# working tree. Without this file a Windows clone with core.autocrlf=true would check
+# everything out as CRLF, so the gate would fail for a reason that has nothing to do with
+# the contributor's change -- and the shell scripts would not run at all.
+* text=auto eol=lf
+
+# Explicit, because these are the two cases where a stray CR is not cosmetic.
+*.sh   text eol=lf
+*.rules text eol=lf

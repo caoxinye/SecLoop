@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# SOC / orchestration subsystem dependencies (battlefield/, ids/)
+#
+# Python 3.11
+flask==3.0.3
+werkzeug==3.0.6
+# Kept identical to agent/requirements.txt.  The two exact pins used to differ
+# (2.32.3 here, 2.34.2 there), so installing one subsystem and then the other
+# silently swapped the HTTP stack the SOC client runs on.
+# tests/lab/test_contract_constants.py fails if they diverge again.
+requests==2.34.2
+python-vagrant==1.0.0

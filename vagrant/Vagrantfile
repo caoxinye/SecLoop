@@ -1,0 +1,95 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+# ---------------------------------------------------------------------------
+# SecLoop BATTLE-FIELD reference lab -- exactly two VMs.
+#
+#   kali   (red / attacker)  kalilinux/rolling  192.168.57.199  2048 MB
+#   target (blue / defender) bento/ubuntu-18.04 192.168.57.200  4096 MB
+#
+# Every value comes from docs/INTERFACES.md section 1 and is mirrored by
+# battlefield/soc/iac_generator.py; if one changes, change both.
+#
+# Usage from a Windows host with VMware Workstation + vagrant-vmware-desktop:
+#
+#   cd vagrant
+#   vagrant up --provider vmware_desktop
+#   bash snapshots.sh            # create kali_init / target_init (required)
+#   python ../battlefield/soc_server.py
+#
+# or, from a POSIX shell, the single-command wrapper:
+#
+#   bash up.sh
+#
+# Provisioning is real: it installs Python 3 + requests and the attack script on
+# kali, and Apache + PHP 7.2 + MySQL + the deliberately vulnerable web app +
+# Suricata with this repository's rules on target.
+#
+# Files are handed to the guests with explicit `file` provisioners (Vagrant's
+# documented "upload to a temporary location, then move it into place with the
+# shell provisioner" pattern) rather than a shared folder, so provisioning works
+# on a Windows host with the vmware_desktop provider and no guest tools.
+# ---------------------------------------------------------------------------
+
+Vagrant.configure("2") do |config|
+  # No implicit /vagrant share: the lab ships exactly what it needs below.
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # Optional convenience: create kali_init / target_init right after `vagrant up`.
+  # Off by default, because a nested `vagrant snapshot save` runs under the same
+  # environment lock as the outer `vagrant up`; `bash snapshots.sh` (or up.sh) is
+  # the reliable path. Enable with SECLOOP_AUTO_SNAPSHOT=1 if you want to try it.
+  if ENV["SECLOOP_AUTO_SNAPSHOT"] == "1"
+    config.trigger.after :up do |trigger|
+      trigger.name = "secloop-initial-snapshots"
+      trigger.info = "creating the <vm>_init snapshots that the SOC restores"
+      trigger.warn = "needs a POSIX shell on PATH (Git Bash / WSL); otherwise run snapshots.sh"
+      trigger.run = { inline: "bash '#{File.dirname(__FILE__)}/snapshots.sh'" }
+    end
+  end
+
+  # ------------------------------------------------------------------ red VM
+  config.vm.define "kali" do |red|
+    red.vm.box = "kalilinux/rolling"
+    red.vm.hostname = "kali"
+    red.vm.network "private_network", ip: "192.168.57.199"
+
+    # battlefield/attacks/sqli_lab.py -> /tmp/secloop/sqli_lab.py
+    # (attacker_setup.sh installs it as ~/attacks/sqli_lab.py for user vagrant)
+    red.vm.provision "file",
+      source: "../battlefield/attacks/sqli_lab.py",
+      destination: "/tmp/secloop/sqli_lab.py"
+
+    red.vm.provider "vmware_desktop" do |v|
+      v.memory = 2048
+      v.cpus = 2
+      v.gui = false
+    end
+
+    red.vm.provision "shell", path: "provision/attacker_setup.sh"
+  end
+
+  # ----------------------------------------------------------------- blue VM
+  config.vm.define "target" do |blue|
+    blue.vm.box = "bento/ubuntu-18.04"
+    blue.vm.hostname = "target"
+    blue.vm.network "private_network", ip: "192.168.57.200"
+
+    # target/webapp  -> /tmp/secloop/webapp   (index.php, search.php, schema.sql, db.env)
+    # target/suricata -> /tmp/secloop/suricata (local.rules, README.md)
+    blue.vm.provision "file",
+      source: "../target/webapp",
+      destination: "/tmp/secloop/webapp"
+    blue.vm.provision "file",
+      source: "../target/suricata",
+      destination: "/tmp/secloop/suricata"
+
+    blue.vm.provider "vmware_desktop" do |v|
+      v.memory = 4096
+      v.cpus = 2
+      v.gui = false
+    end
+
+    blue.vm.provision "shell", path: "provision/target_setup.sh"
+  end
+end

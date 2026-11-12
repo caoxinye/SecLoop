@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# Test-only dependencies for the offline suite.
+#
+# The three subsystem manifests are *runtime* dependencies and none of them pulls
+# in pytest, so the documented `python -m pytest -q` (docs/quickstart.md section 7)
+# failed on a fresh checkout with `ModuleNotFoundError: No module named 'pytest'`.
+#
+# The suite needs no VM, no PHP/MySQL/Suricata and no model endpoint:
+#
+#   pip install -r requirements/test.txt
+#   PYTHONDONTWRITEBYTECODE=1 python -m pytest -q
+pytest>=8.0.0

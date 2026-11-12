@@ -1,0 +1,17 @@
+{
+  "llm": {
+    "base_url": "http://127.0.0.1:8000/v1",
+    "model": "secloop-qwen2.5-7b-instruct",
+    "api_key_env": "LLM_API_KEY",
+    "temperature": 0.0,
+    "timeout_s": 120
+  },
+  "environment": {
+    "platform": "Linux",
+    "description": "Ubuntu 18.04 blue-team target (192.168.57.200) running a deliberately vulnerable PHP/MySQL search application; the red-team attacker is 192.168.57.199 on the isolated 192.168.57.0/24 host-only network. Single attack mode: sqli."
+  },
+  "agent": {
+    "system_prompt": null,
+    "max_tokens": 1024
+  }
+}
