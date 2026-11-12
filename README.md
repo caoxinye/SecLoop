@@ -192,7 +192,7 @@ Apache License 2.0 — see [LICENSE](LICENSE). Third-party components and their
 terms are listed in [NOTICE](NOTICE).
 
 ## Citation
-
+If you find our code useful for your research, please consider citing our paper:
 ```bibtex
 @article{cao2026secloop,
   author  = {Cao, Xinye and Lin, Yihan and Nan, Guoshun and others},
