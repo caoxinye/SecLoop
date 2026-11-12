@@ -101,6 +101,23 @@ python agent/main.py --ids-summary-file /path/to/fast.log   # 4. 跑一轮闭环
 
 强制性的运行约束见 [SECURITY.md](SECURITY.md)。
 
+## 引用
+
+如果参考了我们的代码，请引用以下文章：
+
+```bibtex
+@article{cao2026secloop,
+  author  = {Cao, Xinye and Lin, Yihan and Nan, Guoshun and others},
+  title   = {Advancing {LLM}-Based Security Automation With Customized Group
+             Relative Policy Optimization for Zero-Touch Networks},
+  journal = {IEEE Journal on Selected Areas in Communications},
+  volume  = {44},
+  pages   = {2669--2686},
+  year    = {2026},
+  doi     = {10.1109/JSAC.2025.3643844}
+}
+、、、
+
 ## 许可证
 
 Apache License 2.0，见 [LICENSE](LICENSE)；第三方组件与条款见 [NOTICE](NOTICE)。
